@@ -44,4 +44,12 @@ public interface FusionResourceRepository {
     void saveBatchResourceAuthOrgan(@Param("authOrganList")List<FusionResourceVisibilityAuth> authOrganList);
 
     void deleteResourceAuthOrgan(@Param("resourceId")String resourceId);
+
+    List<FusionResource> selectFusionResourceUser(ResourceParam param);
+
+    Integer selectFusionResourceCountUser(ResourceParam param);
+
+    List<FusionResource> selectFusionResourceOrgan(ResourceParam param);
+
+    Integer selectFusionResourceOrganCount(ResourceParam param);
 }

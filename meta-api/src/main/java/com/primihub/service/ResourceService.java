@@ -11,9 +11,12 @@ import com.primihub.entity.copy.dto.CopyResourceDto;
 import com.primihub.entity.copy.dto.CopyResourceFieldDto;
 import com.primihub.entity.fusion.FusionOrgan;
 import com.primihub.entity.resource.enumeration.AuthTypeEnum;
+import com.primihub.entity.resource.param.PageParam;
+import com.primihub.entity.resource.param.ResourceAssignmentParam;
 import com.primihub.entity.resource.param.ResourceParam;
 import com.primihub.entity.resource.po.FusionResource;
 import com.primihub.entity.resource.po.FusionResourceField;
+import com.primihub.entity.resource.po.FusionResourceOrganAssignment;
 import com.primihub.entity.resource.po.FusionResourceVisibilityAuth;
 import com.primihub.repository.DataSetRepository;
 import com.primihub.repository.FusionRepository;
@@ -203,5 +206,92 @@ public class ResourceService {
 
     public BaseResultEntity getDataSets(Set<String> ids) {
         return BaseResultEntity.success(dataSetRepository.getDataSetByIds(ids));
+    }
+
+    public BaseResultEntity getDataResourceOrganAssignment(ResourceAssignmentParam param) {
+        log.info(JSONObject.toJSONString(param));
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("organGlobalId", param.getOrganGlobalId());
+        paramMap.put("offset", param.getOffset());
+        paramMap.put("pageSize", param.getPageSize());
+        // 授权状态是已通过
+        paramMap.put("auditStatus", 1);
+        // 查询出有授权的资源，并且状态是
+        List<FusionResource> organAssignmentResourceList = resourceRepository.selectFusionResourceAssignmentByParam(paramMap);
+        if (organAssignmentResourceList.size() == 0) {
+            return BaseResultEntity.success(new PageDataEntity(0, param.getPageSize(),param.getPageNo(), new ArrayList()));
+        }
+        Integer count = resourceRepository.selectFusionResourceAssignmentCount(paramMap);
+        Set<Long> resourceIds = organAssignmentResourceList.stream().map(FusionResource::getId).collect(Collectors.toSet());
+        Set<String> organIds = organAssignmentResourceList.stream().map(FusionResource::getOrganId).collect(Collectors.toSet());
+        Map<String, String> organNameMap = fusionRepository.selectFusionOrganByGlobalIds(organIds).stream().collect(Collectors.toMap(FusionOrgan::getGlobalId, FusionOrgan::getGlobalName,(key1, key2) -> key1));
+        log.info(JSONObject.toJSONString(organNameMap));
+        Map<Long, List<FusionResourceField>> resourceFielMap = resourceRepository.selectFusionResourceFieldByIds(resourceIds).stream().collect(Collectors.groupingBy(FusionResourceField::getResourceId));
+        return BaseResultEntity.success(
+                new PageDataEntity(
+                        count,
+                        param.getPageSize(),
+                        param.getPageNo(),
+                        organAssignmentResourceList.stream().map(re-> DataResourceConvert.fusionResourcePoConvertVo(re,organNameMap.get(re.getOrganId()),resourceFielMap.get(re.getId()),param.getOrganGlobalId())).collect(Collectors.toList())
+                ));
+    }
+
+    public BaseResultEntity getDataResourceToApply(ResourceAssignmentParam param) {
+        log.info(JSONObject.toJSONString(param));
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("organGlobalId", param.getOrganGlobalId());
+        paramMap.put("offset", param.getOffset());
+        paramMap.put("pageSize", param.getPageSize());
+        // 需要没发起申请
+        // 资源状态需要是 可授权使用的
+        paramMap.put("resourceAuthType", 1);
+        // 查询出有授权的资源，并且状态是
+        List<FusionResource> fusionResourceList = resourceRepository.getDataResourceToApply(paramMap);
+        if (fusionResourceList.size() == 0) {
+            return BaseResultEntity.success(new PageDataEntity(0, param.getPageSize(),param.getPageNo(), new ArrayList()));
+        }
+        Integer count = resourceRepository.getDataResourceToApplyCount(paramMap);
+        Set<Long> resourceIds = fusionResourceList.stream().map(FusionResource::getId).collect(Collectors.toSet());
+        Set<String> organIds = fusionResourceList.stream().map(FusionResource::getOrganId).collect(Collectors.toSet());
+        Map<String, String> organNameMap = fusionRepository.selectFusionOrganByGlobalIds(organIds).stream().collect(Collectors.toMap(FusionOrgan::getGlobalId, FusionOrgan::getGlobalName,(key1, key2) -> key1));
+        log.info(JSONObject.toJSONString(organNameMap));
+        Map<Long, List<FusionResourceField>> resourceFielMap = resourceRepository.selectFusionResourceFieldByIds(resourceIds).stream().collect(Collectors.groupingBy(FusionResourceField::getResourceId));
+        return BaseResultEntity.success(new PageDataEntity(
+                count,
+                param.getPageSize(),
+                param.getPageNo(),
+                fusionResourceList.stream().map(re-> DataResourceConvert.fusionResourcePoConvertVo(re,organNameMap.get(re.getOrganId()),resourceFielMap.get(re.getId()),param.getOrganGlobalId())).collect(Collectors.toList())
+                ));
+    }
+
+    public BaseResultEntity getResourceListUser(ResourceParam param) {
+        log.info(JSONObject.toJSONString(param));
+        // 重新写一个sql语句
+        List<FusionResource> fusionResources = resourceRepository.selectFusionResourceUser(param);
+        if (fusionResources.isEmpty()) {
+            return BaseResultEntity.success(new PageDataEntity(0,param.getPageSize(),param.getPageNo(),new ArrayList()));
+        }
+        Integer count = resourceRepository.selectFusionResourceCountUser(param);
+        Set<Long> resourceIds = fusionResources.stream().map(FusionResource::getId).collect(Collectors.toSet());
+        Set<String> organIds = fusionResources.stream().map(FusionResource::getOrganId).collect(Collectors.toSet());
+        Map<String, String> organNameMap = fusionRepository.selectFusionOrganByGlobalIds(organIds).stream().collect(Collectors.toMap(FusionOrgan::getGlobalId, FusionOrgan::getGlobalName,(key1, key2) -> key1));
+        log.info(JSONObject.toJSONString(organNameMap));
+        Map<Long, List<FusionResourceField>> resourceFielMap = resourceRepository.selectFusionResourceFieldByIds(resourceIds).stream().collect(Collectors.groupingBy(FusionResourceField::getResourceId));
+        return BaseResultEntity.success(new PageDataEntity(count,param.getPageSize(),param.getPageNo(),fusionResources.stream().map(re-> DataResourceConvert.fusionResourcePoConvertVo(re,organNameMap.get(re.getOrganId()),resourceFielMap.get(re.getId()),param.getGlobalId())).collect(Collectors.toList())));
+    }
+
+    public BaseResultEntity getResourceListOrgan(ResourceParam param) {
+        log.info(JSONObject.toJSONString(param));
+        List<FusionResource> fusionResources = resourceRepository.selectFusionResourceOrgan(param);
+        if (fusionResources.isEmpty()) {
+            return BaseResultEntity.success(new PageDataEntity(0,param.getPageSize(),param.getPageNo(),new ArrayList()));
+        }
+        Integer count = resourceRepository.selectFusionResourceOrganCount(param);
+        Set<Long> resourceIds = fusionResources.stream().map(FusionResource::getId).collect(Collectors.toSet());
+        Set<String> organIds = fusionResources.stream().map(FusionResource::getOrganId).collect(Collectors.toSet());
+        Map<String, String> organNameMap = fusionRepository.selectFusionOrganByGlobalIds(organIds).stream().collect(Collectors.toMap(FusionOrgan::getGlobalId, FusionOrgan::getGlobalName,(key1, key2) -> key1));
+        log.info(JSONObject.toJSONString(organNameMap));
+        Map<Long, List<FusionResourceField>> resourceFielMap = resourceRepository.selectFusionResourceFieldByIds(resourceIds).stream().collect(Collectors.groupingBy(FusionResourceField::getResourceId));
+        return BaseResultEntity.success(new PageDataEntity(count,param.getPageSize(),param.getPageNo(),fusionResources.stream().map(re-> DataResourceConvert.fusionResourcePoConvertVo(re,organNameMap.get(re.getOrganId()),resourceFielMap.get(re.getId()),param.getGlobalId())).collect(Collectors.toList())));
     }
 }

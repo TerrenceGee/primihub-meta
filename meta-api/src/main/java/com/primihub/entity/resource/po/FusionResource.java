@@ -37,6 +37,9 @@ public class FusionResource {
 
     /**
      * 授权类型（公开，私有，可见性）
+     * 1.公开
+     * 2.授权使用
+     * 3.私有
      */
     private Integer resourceAuthType;
 

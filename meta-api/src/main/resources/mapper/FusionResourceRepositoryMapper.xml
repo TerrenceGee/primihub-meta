@@ -224,5 +224,115 @@
         </foreach>
     </insert>
 
+    <select id="selectFusionResourceUser" parameterType="com.primihub.entity.resource.param.ResourceParam" resultMap="FusionResourceBaseResultMap">
+        select
+        distinct r.id,resource_id resourceId,resource_name resourceName,resource_desc resourceDesc,resource_type resourceType,
+        resource_auth_type resourceAuthType,resource_rows_count resourceRowsCount,resource_column_count resourceColumnCount,
+        resource_column_name_list resourceColumnNameList,resource_contains_y resourceContainsY,resource_y_rows_count resourceYRowsCount,
+        resource_state resourceState,resource_hash_code resourceHashCode,
+        resource_y_ratio resourceYRatio,resource_tag resourceTag,organ_id organId,user_name userName,r.is_del isDel,r.c_time cTime,r.u_time uTime
+        from fusion_resource r
+        <include refid="fusionResourceCondition2"></include>
+        order by r.id desc
+        limit #{offset},#{pageSize}
+    </select>
+
+    <select id="selectFusionResourceCountUser" parameterType="com.primihub.entity.resource.param.ResourceParam" resultType="java.lang.Integer">
+        select
+        count(distinct r.id)
+        from fusion_resource r
+        <include refid="fusionResourceCondition2"></include>
+    </select>
+
+    <sql id="fusionResourceCondition2">
+        where
+        r.resource_state = 0
+        and r.resource_type != 3
+        and (
+        r.resource_auth_type=1
+        or r.organ_id = #{globalId}
+        <if test="resourceFusionIds!=null">
+            or r.resource_id in
+            <foreach collection="resourceFusionIds" index="index" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        )
+        and r.is_del=0
+        <if test="organId!=null and organId!=''">and r.organ_id = #{organId}</if>
+        <if test="globalId!=null and globalId!='' and organId!=globalId">and r.organ_id != #{globalId}</if>
+        <if test="organIds!=null">
+            and r.organ_id in
+            <foreach collection="organIds" index="index" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="resourceId!=null and resourceId!=''">and r.resource_id = #{resourceId}</if>
+        <if test="resourceName!=null and resourceName!=''">and r.resource_name like
+            CONCAT('%',#{resourceName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="resourceType!=null and resourceType!=0">and r.resource_type = #{resourceType}</if>
+        <if test="tagName!=null and tagName!=''">and FIND_IN_SET(#{tagName}, r.resource_tag)</if>
+        <choose>
+            <when test="fileContainsY!=null and fileContainsY==1">
+                and r.resource_contains_y = 1
+            </when>
+            <when test="fileContainsY!=null and fileContainsY==0">
+                and r.resource_contains_y is null
+            </when>
+        </choose>
+    </sql>
+
+    <select id="selectFusionResourceOrgan" parameterType="com.primihub.entity.resource.param.ResourceParam" resultMap="FusionResourceBaseResultMap">
+        select
+        distinct r.id,resource_id resourceId,resource_name resourceName,resource_desc resourceDesc,resource_type resourceType,
+        resource_auth_type resourceAuthType,resource_rows_count resourceRowsCount,resource_column_count resourceColumnCount,
+        resource_column_name_list resourceColumnNameList,resource_contains_y resourceContainsY,resource_y_rows_count resourceYRowsCount,
+        resource_state resourceState,resource_hash_code resourceHashCode,
+        resource_y_ratio resourceYRatio,resource_tag resourceTag,organ_id organId,user_name userName,r.is_del isDel,r.c_time cTime,r.u_time uTime
+        from fusion_resource r
+        <include refid="fusionResourceCondition3"></include>
+        order by r.id desc
+        limit #{offset},#{pageSize}
+    </select>
+
+    <select id="selectFusionResourceOrganCount" parameterType="com.primihub.entity.resource.param.ResourceParam" resultType="java.lang.Integer">
+        select
+        count(distinct r.id)
+        from fusion_resource r
+        <include refid="fusionResourceCondition3"></include>
+    </select>
+
+    <sql id="fusionResourceCondition3">
+        where
+        r.resource_state = 0
+        and r.resource_type != 3
+        and (
+        r.resource_auth_type=1
+        or r.organ_id = #{globalId}
+        or (select count(1) from fusion_resource_organ_assignment froa where froa.resource_id = r.resource_id and froa.organ_global_id = #{globalId} and froa.audit_status = 1) = 1
+        )
+        and r.is_del=0
+        <if test="organId!=null and organId!=''">and r.organ_id = #{organId}</if>
+        <if test="globalId!=null and globalId!='' and organId!=globalId">and r.organ_id != #{globalId}</if>
+        <if test="organIds!=null">
+            and r.organ_id in
+            <foreach collection="organIds" index="index" item="item" separator="," open="(" close=")" >
+                #{item}
+            </foreach>
+        </if>
+        <if test="resourceId!=null and resourceId!=''">and r.resource_id = #{resourceId}</if>
+        <if test="resourceName!=null and resourceName!=''">and r.resource_name like CONCAT('%',#{resourceName,jdbcType=VARCHAR},'%')</if>
+        <if test="resourceType!=null and resourceType!=0">and r.resource_type = #{resourceType}</if>
+        <if test="tagName!=null and tagName!=''">and FIND_IN_SET(#{tagName}, r.resource_tag)</if>
+        <choose>
+            <when test="fileContainsY!=null and fileContainsY==1">
+                and r.resource_contains_y = 1
+            </when>
+            <when test="fileContainsY!=null and fileContainsY==0">
+                and r.resource_contains_y is null
+            </when>
+        </choose>
+    </sql>
 
 </mapper>

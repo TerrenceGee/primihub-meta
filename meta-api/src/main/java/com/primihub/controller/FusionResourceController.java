@@ -5,15 +5,14 @@ import com.primihub.entity.DataSet;
 import com.primihub.entity.base.BaseResultEntity;
 import com.primihub.entity.base.BaseResultEnum;
 import com.primihub.entity.copy.dto.CopyResourceDto;
+import com.primihub.entity.resource.param.PageParam;
+import com.primihub.entity.resource.param.ResourceAssignmentParam;
 import com.primihub.entity.resource.param.ResourceParam;
 import com.primihub.service.ResourceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
@@ -88,6 +87,40 @@ public class FusionResourceController {
             return BaseResultEntity.failure(BaseResultEnum.LACK_OF_PARAM,"shareData - dataSets");
         }
         return resourceService.batchSaveTestDataSet(dataSets);
+    }
+
+    /**
+     * 查询机构已授权的资源
+     * @return
+     */
+    @GetMapping("getDataResourceOrganAssignment")
+    BaseResultEntity getDataResourceOrganAssignment(ResourceAssignmentParam param) {
+        if (param.getOrganGlobalId()==null||param.getOrganGlobalId().length()==0) {
+            return BaseResultEntity.failure(BaseResultEnum.LACK_OF_PARAM,"organGlobalId");
+        }
+        return resourceService.getDataResourceOrganAssignment(param);
+    }
+
+    /**
+     * 查询机构可申请的资源
+     * @return
+     */
+    @GetMapping("getDataResourceToApply")
+    BaseResultEntity getDataResourceToApply(ResourceAssignmentParam param) {
+        if (param.getOrganGlobalId()==null||param.getOrganGlobalId().length()==0) {
+            return BaseResultEntity.failure(BaseResultEnum.LACK_OF_PARAM,"organGlobalId");
+        }
+        return resourceService.getDataResourceToApply(param);
+    }
+
+    @RequestMapping("/fusionResource/getResourceListUser")
+    BaseResultEntity getResourceListUser(@RequestBody ResourceParam resourceParam) {
+        return resourceService.getResourceListUser(resourceParam);
+    }
+
+    @RequestMapping("/fusionResource/getResourceListOrgan")
+    BaseResultEntity getResourceListOrgan(@RequestBody ResourceParam resourceParam) {
+        return resourceService.getResourceListOrgan(resourceParam);
     }
 
 }

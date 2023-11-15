@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a1eeab46-b45a-4811-9a64-066a6dfb1830" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/entity/resource/param/ResourceAssignmentParam.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/entity/resource/po/FusionResourceOrganAssignment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/controller/FusionResourceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/controller/FusionResourceController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/entity/resource/param/ResourceParam.java" beforeDir="false" afterPath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/entity/resource/param/ResourceParam.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/entity/resource/po/FusionResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/entity/resource/po/FusionResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/repository/FusionResourceRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/repository/FusionResourceRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/service/ResourceService.java" beforeDir="false" afterPath="$PROJECT_DIR$/meta-api/src/main/java/com/primihub/service/ResourceService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/meta-api/src/main/resources/mapper/FusionResourceRepositoryMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/meta-api/src/main/resources/mapper/FusionResourceRepositoryMapper.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="localRepository" value="X:\software-dev\maven\repository" />
+        <option name="mavenHome" value="X:/software-dev/maven/apache-maven-3.6.3" />
+        <option name="useMavenConfig" value="true" />
+        <option name="userSettingsFile" value="X:\software-dev\maven\apache-maven-3.6.3\conf\settings.xml" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="2XvRDVOGKvfSvGNQhjAKbUX8ugU" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "feature/role__authority",
+    "last_opened_file_path": "Y:/github-code/TerrenceGee/primihub-platform2",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "MavenSettings",
+    "spring.configuration.checksum": "f2cb344c50c795d908c51c2e14624c2c",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager" selected="Spring Boot.MetaApplication">
+    <configuration name="MetaApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="meta-api" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.primihub.MetaApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SimpleApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="meta-simple" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.primihub.simple.SimpleApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="lua.app" factoryName="Lua Application">
+      <option name="program" value="lua.exe" />
+      <option name="file" value="" />
+      <option name="workingDir" value="$PROJECT_DIR$/meta-grpc/src/main/java" />
+      <option name="debuggerType" value="1" />
+      <option name="params" value="" />
+      <option name="charset" value="UTF-8" />
+      <option name="showConsole" value="true" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration>C:\Users\36258\AppData\Roaming\Subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a1eeab46-b45a-4811-9a64-066a6dfb1830" name="Changes" comment="" />
+      <created>1699507448021</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1699507448021</updated>
+      <workItem from="1699507449007" duration="5485000" />
+      <workItem from="1699522114910" duration="608000" />
+      <workItem from="1699599176400" duration="67000" />
+      <workItem from="1699599254551" duration="599000" />
+      <workItem from="1699948593539" duration="5258000" />
+      <workItem from="1700008810221" duration="8631000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

@@ -14,4 +14,5 @@ public class ResourceParam extends PageParam {
     private String tagName;
     private Integer fileContainsY;
     private String globalId;
+    private List<String> resourceFusionIds;
 }
