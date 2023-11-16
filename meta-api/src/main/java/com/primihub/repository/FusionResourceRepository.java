@@ -4,11 +4,14 @@ package com.primihub.repository;
 import com.primihub.entity.resource.param.ResourceParam;
 import com.primihub.entity.resource.po.FusionResource;
 import com.primihub.entity.resource.po.FusionResourceField;
+import com.primihub.entity.resource.po.FusionResourceOrganAssignment;
 import com.primihub.entity.resource.po.FusionResourceVisibilityAuth;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Mapper
@@ -52,4 +55,10 @@ public interface FusionResourceRepository {
     List<FusionResource> selectFusionResourceOrgan(ResourceParam param);
 
     Integer selectFusionResourceOrganCount(ResourceParam param);
+
+    FusionResourceOrganAssignment selectFusionResourceOrganAssignment(Map<String, Object> paramMap);
+
+    void updateFusionResourceOrganAssignment(FusionResourceOrganAssignment assignmentPo);
+
+    void saveBatchResourceOrganAssignment(@Param("collection")List<FusionResourceOrganAssignment> list);
 }

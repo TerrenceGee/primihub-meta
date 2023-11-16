@@ -335,4 +335,39 @@
         </choose>
     </sql>
 
+    <select id="selectFusionResourceOrganAssignment" parameterType="com.primihub.entity.resource.po.FusionResourceOrganAssignment" resultMap="FusionResourceBaseResultMap">
+        select
+        id, c_time cTime, u_time uTime, resource_id resourceId, resource_organ_id resourceOrganId, audit_status
+        auditStatus, organ_id organId, apply_time applyTime, assign_time assignTime
+        from fusion_resource_organ_assignment froa
+        <where>
+            <if test="resourceId!=null">
+                and resource_id = #{resourceId}
+            </if>
+            <if test="organId!=null">
+                and organ_id = #{organId}
+            </if>
+        </where>
+        order by froa.id desc
+        limit 1
+    </select>
+
+    <update id="updateFusionResourceOrganAssignment" parameterType="com.primihub.entity.resource.po.FusionResourceOrganAssignment">
+        update fusion_resource_organ_assignment
+        <set>
+            <if test="auditStatus!=null">audit_status= #{auditStatus},</if>
+            <if test="assignTime!=null">assign_time = #{assignTime}</if>
+            u_time = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <insert id="saveBatchResourceOrganAssignment" parameterType="com.primihub.entity.resource.po.FusionResourceOrganAssignment">
+        insert into fusion_resource_organ_assignment (resource_id,resource_organ_id,audit_status,organ_id,apply_time,assign_time,c_time,u_time)
+        values
+        <foreach collection="collection" index="index" item="item" separator=",">
+            (#{item.resourceId},#{item.resourceOrganId},#{item.auditStatus},#{item.organId},#{item.applyTime},#{item.assignTime},now(),now())
+        </foreach>
+    </insert>
+
 </mapper>

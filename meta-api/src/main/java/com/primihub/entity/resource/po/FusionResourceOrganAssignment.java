@@ -1,6 +1,7 @@
 package com.primihub.entity.resource.po;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.primihub.entity.resource.param.DataResourceOrganAssignmentParam;
 import lombok.Data;
 
 import java.util.Date;
@@ -12,7 +13,11 @@ import java.util.Date;
 public class FusionResourceOrganAssignment {
     private Long id;
     private String resourceId;
-    private String organGlobalId;
+    /**
+     * 资源所属机构Id
+     */
+    private String resourceOrganId;
+    private String organId;
     /**
      * 申请时间
      */
@@ -30,4 +35,13 @@ public class FusionResourceOrganAssignment {
     private Integer assignStatus;
     private Date cTime;
     private Date uTime;
+
+    public FusionResourceOrganAssignment() {
+    }
+
+    public FusionResourceOrganAssignment(DataResourceOrganAssignmentParam param){
+        this.resourceId = param.getResourceFusionId();
+        this.organId = param.getResourceOrganId();
+        this.resourceOrganId = param.getResourceOrganId();
+    }
 }

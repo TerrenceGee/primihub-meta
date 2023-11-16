@@ -5,6 +5,7 @@ import com.primihub.entity.DataSet;
 import com.primihub.entity.base.BaseResultEntity;
 import com.primihub.entity.base.BaseResultEnum;
 import com.primihub.entity.copy.dto.CopyResourceDto;
+import com.primihub.entity.resource.param.DataResourceOrganAssignmentParam;
 import com.primihub.entity.resource.param.PageParam;
 import com.primihub.entity.resource.param.ResourceAssignmentParam;
 import com.primihub.entity.resource.param.ResourceParam;
@@ -121,6 +122,27 @@ public class FusionResourceController {
     @RequestMapping("/fusionResource/getResourceListOrgan")
     BaseResultEntity getResourceListOrgan(@RequestBody ResourceParam resourceParam) {
         return resourceService.getResourceListOrgan(resourceParam);
+    }
+
+    @PostMapping("/fusionResource/saveResourceOrganAssignList")
+    BaseResultEntity saveDataResourceOrganAssignList(@RequestParam("globalId") String globalId, @RequestBody List<DataResourceOrganAssignmentParam> dataResourceOrganAssigns) {
+        // 可能来自于拥有者的授权
+        return resourceService.saveDataResourceOrganAssignList(globalId, dataResourceOrganAssigns);
+    }
+
+    @PostMapping("/fusionResource/saveResourceOrganAssignApply")
+    BaseResultEntity saveResourceOrganAssignApply(@RequestParam("globalId") String globalId, @RequestBody DataResourceOrganAssignmentParam param) {
+        // 资源申请
+        return resourceService.saveResourceOrganAssignApply(globalId, param);
+    }
+
+    @PostMapping("/fusionResource/saveResourceOrganAssignAudit")
+    BaseResultEntity saveResourceOrganAssignAudit(@RequestParam("globalId") String globalId, @RequestBody DataResourceOrganAssignmentParam param) {
+        if (param.getAuditStatus() != 1 && param.getAuditStatus() != 2) {
+            return BaseResultEntity.failure(BaseResultEnum.PARAM_INVALIDATION, "auditStatus");
+        }
+        // 资源审核
+        return resourceService.saveResourceOrganAssignAudit(globalId, param);
     }
 
 }
