@@ -167,6 +167,7 @@ public class ResourceService {
         log.info(JSONObject.toJSONString(fusionResources));
         Map<String, DataSet> dataSetMap = dataSetService.getByIds(resourceIdArray).stream().collect(Collectors.toMap(DataSet::getId, Function.identity()));
         Set<Long> ids = fusionResources.stream().map(FusionResource::getId).collect(Collectors.toSet());
+        if (ids != null && ids.size() > 0)
         Map<Long, List<CopyResourceFieldDto>> fieldMap = resourceRepository.selectFusionResourceFieldByIds(ids).stream().map(DataResourceConvert::fusionResourceFieldConvertCopyResourceFieldDto).collect(Collectors.groupingBy(CopyResourceFieldDto::getResourceId));
         return BaseResultEntity.success(fusionResources.stream().map(d -> DataResourceConvert.FusionResourceConvertCopyResourceDto(d, fieldMap.get(d.getId()), dataSetMap.get(d.getResourceId()))).collect(Collectors.toList()));
     }
