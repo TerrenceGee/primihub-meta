@@ -310,7 +310,7 @@
         and (
         r.resource_auth_type=1
         or r.organ_id = #{globalId}
-        or (select count(1) from fusion_resource_organ_assignment froa where froa.resource_id = r.resource_id and froa.organ_global_id = #{globalId} and froa.audit_status = 1) = 1
+        or (select count(1) from fusion_resource_visibility_auth frva where frva.resource_id = r.resource_id and frva.organ_global_id = #{globalId} and frva.audit_status = 1) = 1
         )
         and r.is_del=0
         <if test="organId!=null and organId!=''">and r.organ_id = #{organId}</if>
@@ -335,39 +335,112 @@
         </choose>
     </sql>
 
-    <select id="selectFusionResourceOrganAssignment" parameterType="com.primihub.entity.resource.po.FusionResourceOrganAssignment" resultMap="FusionResourceBaseResultMap">
+    <select id="selectFusionResourceOrganAssignment" parameterType="com.primihub.entity.resource.param.ResourceParam" resultMap="FusionResourceBaseResultMap">
         select
-        id, c_time cTime, u_time uTime, resource_id resourceId, resource_organ_id resourceOrganId, audit_status
-        auditStatus, organ_id organId, apply_time applyTime, assign_time assignTime
-        from fusion_resource_organ_assignment froa
-        <where>
-            <if test="resourceId!=null">
-                and resource_id = #{resourceId}
-            </if>
-            <if test="organId!=null">
-                and organ_id = #{organId}
-            </if>
-        </where>
-        order by froa.id desc
-        limit 1
+        distinct r.id,resource_id resourceId,resource_name resourceName,resource_desc resourceDesc,resource_type resourceType,
+        resource_auth_type resourceAuthType,resource_rows_count resourceRowsCount,resource_column_count resourceColumnCount,
+        resource_column_name_list resourceColumnNameList,resource_contains_y resourceContainsY,resource_y_rows_count resourceYRowsCount,
+        resource_state resourceState,resource_hash_code resourceHashCode,
+        resource_y_ratio resourceYRatio,resource_tag resourceTag,organ_id organId,user_name userName,r.is_del isDel,r.c_time cTime,r.u_time uTime
+        from fusion_resource r
+        <include refid="fusionResourceCondition4"></include>
+        order by r.id desc
+        limit #{offset},#{pageSize}
     </select>
+    <select id="selectFusionResourceOrganAssignmentCount" parameterType="com.primihub.entity.resource.param.ResourceParam" resultType="java.lang.Integer">
+        select
+        count(distinct r.id)
+        from fusion_resource r
+        <include refid="fusionResourceCondition4"></include>
+    </select>
+    <sql id="fusionResourceCondition4">
+        where
+        r.resource_state = 0
+        and r.resource_type != 3
+        and (
+        select count(1) from fusion_resource_organ_assignment froa where froa.resource_id = r.resource_id and froa.organ_global_id = #{globalId} and froa.audit_status = 1) = 1
+        and r.is_del=0
+        <if test="organId!=null and organId!=''">and r.organ_id = #{organId}</if>
+        <if test="globalId!=null and globalId!='' and organId!=globalId">and r.organ_id != #{globalId}</if>
+        <if test="organIds!=null">
+            and r.organ_id in
+            <foreach collection="organIds" index="index" item="item" separator="," open="(" close=")" >
+                #{item}
+            </foreach>
+        </if>
+        <if test="resourceId!=null and resourceId!=''">and r.resource_id = #{resourceId}</if>
+        <if test="resourceName!=null and resourceName!=''">and r.resource_name like CONCAT('%',#{resourceName,jdbcType=VARCHAR},'%')</if>
+        <if test="resourceType!=null and resourceType!=0">and r.resource_type = #{resourceType}</if>
+        <if test="tagName!=null and tagName!=''">and FIND_IN_SET(#{tagName}, r.resource_tag)</if>
+        <choose>
+            <when test="fileContainsY!=null and fileContainsY==1">
+                and r.resource_contains_y = 1
+            </when>
+            <when test="fileContainsY!=null and fileContainsY==0">
+                and r.resource_contains_y is null
+            </when>
+        </choose>
+    </sql>
 
-    <update id="updateFusionResourceOrganAssignment" parameterType="com.primihub.entity.resource.po.FusionResourceOrganAssignment">
-        update fusion_resource_organ_assignment
-        <set>
-            <if test="auditStatus!=null">audit_status= #{auditStatus},</if>
-            <if test="assignTime!=null">assign_time = #{assignTime}</if>
-            u_time = now()
-        </set>
-        where id = #{id}
-    </update>
 
-    <insert id="saveBatchResourceOrganAssignment" parameterType="com.primihub.entity.resource.po.FusionResourceOrganAssignment">
-        insert into fusion_resource_organ_assignment (resource_id,resource_organ_id,audit_status,organ_id,apply_time,assign_time,c_time,u_time)
-        values
-        <foreach collection="collection" index="index" item="item" separator=",">
-            (#{item.resourceId},#{item.resourceOrganId},#{item.auditStatus},#{item.organId},#{item.applyTime},#{item.assignTime},now(),now())
+
+    <select id="selectFusionResourceUserAssignment" parameterType="com.primihub.entity.resource.param.ResourceParam" resultMap="FusionResourceBaseResultMap">
+        select
+        distinct r.id,resource_id resourceId,resource_name resourceName,resource_desc resourceDesc,resource_type resourceType,
+        resource_auth_type resourceAuthType,resource_rows_count resourceRowsCount,resource_column_count resourceColumnCount,
+        resource_column_name_list resourceColumnNameList,resource_contains_y resourceContainsY,resource_y_rows_count resourceYRowsCount,
+        resource_state resourceState,resource_hash_code resourceHashCode,
+        resource_y_ratio resourceYRatio,resource_tag resourceTag,organ_id organId,user_name userName,r.is_del isDel,r.c_time cTime,r.u_time uTime
+        from fusion_resource r
+        <include refid="fusionResourceCondition5"></include>
+        order by r.id desc
+        limit #{offset},#{pageSize}
+    </select>
+    <select id="selectFusionResourceUserAssignmentCount" parameterType="com.primihub.entity.resource.param.ResourceParam" resultType="java.lang.Integer">
+        select
+        count(distinct r.id)
+        from fusion_resource r
+        <include refid="fusionResourceCondition5"></include>
+    </select>
+    <sql id="fusionResourceCondition5">
+        where
+        r.resource_state = 0
+        and r.resource_type != 3
+        and (
+            r.resource_id in
+        <foreach collection="resourceFusionIds" index="index" item="item" separator="," open="(" close=")">
+            #{item}
         </foreach>
-    </insert>
+        )
+        and r.is_del=0
+        <if test="organId!=null and organId!=''">and r.organ_id = #{organId}</if>
+        <if test="globalId!=null and globalId!='' and organId!=globalId">and r.organ_id != #{globalId}</if>
+        <if test="organIds!=null">
+            and r.organ_id in
+            <foreach collection="organIds" index="index" item="item" separator="," open="(" close=")" >
+                #{item}
+            </foreach>
+        </if>
+        <if test="resourceId!=null and resourceId!=''">and r.resource_id = #{resourceId}</if>
+        <if test="resourceName!=null and resourceName!=''">and r.resource_name like CONCAT('%',#{resourceName,jdbcType=VARCHAR},'%')</if>
+        <if test="resourceType!=null and resourceType!=0">and r.resource_type = #{resourceType}</if>
+        <if test="tagName!=null and tagName!=''">and FIND_IN_SET(#{tagName}, r.resource_tag)</if>
+        <choose>
+            <when test="fileContainsY!=null and fileContainsY==1">
+                and r.resource_contains_y = 1
+            </when>
+            <when test="fileContainsY!=null and fileContainsY==0">
+                and r.resource_contains_y is null
+            </when>
+        </choose>
+    </sql>
+
+    <select id="selectFusionResourceVisibilityAuth" resultType="com.primihub.entity.resource.po.FusionResourceVisibilityAuth">
+        select *
+        from fusion_resource_visibility_auth o
+        where o.resource_id = #{resourceFusionId}
+        order by o.id desc
+        limit #{offset}, #{pageSize}
+    </select>
 
 </mapper>

@@ -1,6 +1,5 @@
 package com.primihub.service;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.primihub.convert.DataResourceConvert;
 import com.primihub.entity.DataSet;
@@ -17,7 +16,6 @@ import com.primihub.entity.resource.param.ResourceAssignmentParam;
 import com.primihub.entity.resource.param.ResourceParam;
 import com.primihub.entity.resource.po.FusionResource;
 import com.primihub.entity.resource.po.FusionResourceField;
-import com.primihub.entity.resource.po.FusionResourceOrganAssignment;
 import com.primihub.entity.resource.po.FusionResourceVisibilityAuth;
 import com.primihub.repository.DataSetRepository;
 import com.primihub.repository.FusionRepository;
@@ -113,6 +111,7 @@ public class ResourceService {
                 List<FusionResourceField> resourceFields = copyResourceDto.getFieldList().stream().map(field -> DataResourceConvert.copyResourceFieldDtoConvertPo(field, fusionResource.getId(), null)).collect(Collectors.toList());
                 resourceRepository.saveBatchResourceField(resourceFields);
             }
+            // todo 可见性同步
             if (fusionResource.getResourceAuthType().equals(AuthTypeEnum.VISIBILITY.getAuthType())) {
                 List<String> authStringList = copyResourceDto.getAuthOrganList();
                 if (authStringList != null) {
@@ -209,32 +208,24 @@ public class ResourceService {
         return BaseResultEntity.success(dataSetRepository.getDataSetByIds(ids));
     }
 
-    public BaseResultEntity getDataResourceOrganAssignment(ResourceAssignmentParam param) {
+    /**
+     * 机构获取已授权
+     * @param param
+     * @return
+     */
+    public BaseResultEntity getDataResourceAssignmentOfOrgan(ResourceParam param) {
         log.info(JSONObject.toJSONString(param));
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("organGlobalId", param.getOrganGlobalId());
-        paramMap.put("offset", param.getOffset());
-        paramMap.put("pageSize", param.getPageSize());
-        // 授权状态是已通过
-        paramMap.put("auditStatus", 1);
-        // 查询出有授权的资源，并且状态是
-        List<FusionResource> organAssignmentResourceList = resourceRepository.selectFusionResourceAssignmentByParam(paramMap);
-        if (organAssignmentResourceList.size() == 0) {
+        List<FusionResource> fusionResources = resourceRepository.selectFusionResourceOrganAssignment(param);
+        if (fusionResources.isEmpty()) {
             return BaseResultEntity.success(new PageDataEntity(0, param.getPageSize(), param.getPageNo(), new ArrayList()));
         }
-        Integer count = resourceRepository.selectFusionResourceAssignmentCount(paramMap);
-        Set<Long> resourceIds = organAssignmentResourceList.stream().map(FusionResource::getId).collect(Collectors.toSet());
-        Set<String> organIds = organAssignmentResourceList.stream().map(FusionResource::getOrganId).collect(Collectors.toSet());
+        Integer count = resourceRepository.selectFusionResourceOrganAssignmentCount(param);
+        Set<Long> resourceIds = fusionResources.stream().map(FusionResource::getId).collect(Collectors.toSet());
+        Set<String> organIds = fusionResources.stream().map(FusionResource::getOrganId).collect(Collectors.toSet());
         Map<String, String> organNameMap = fusionRepository.selectFusionOrganByGlobalIds(organIds).stream().collect(Collectors.toMap(FusionOrgan::getGlobalId, FusionOrgan::getGlobalName, (key1, key2) -> key1));
         log.info(JSONObject.toJSONString(organNameMap));
         Map<Long, List<FusionResourceField>> resourceFielMap = resourceRepository.selectFusionResourceFieldByIds(resourceIds).stream().collect(Collectors.groupingBy(FusionResourceField::getResourceId));
-        return BaseResultEntity.success(
-                new PageDataEntity(
-                        count,
-                        param.getPageSize(),
-                        param.getPageNo(),
-                        organAssignmentResourceList.stream().map(re -> DataResourceConvert.fusionResourcePoConvertVo(re, organNameMap.get(re.getOrganId()), resourceFielMap.get(re.getId()), param.getOrganGlobalId())).collect(Collectors.toList())
-                ));
+        return BaseResultEntity.success(new PageDataEntity(count, param.getPageSize(), param.getPageNo(), fusionResources.stream().map(re -> DataResourceConvert.fusionResourcePoConvertVo(re, organNameMap.get(re.getOrganId()), resourceFielMap.get(re.getId()), param.getGlobalId())).collect(Collectors.toList())));
     }
 
     public BaseResultEntity getDataResourceToApply(ResourceAssignmentParam param) {
@@ -267,7 +258,6 @@ public class ResourceService {
 
     public BaseResultEntity getResourceListUser(ResourceParam param) {
         log.info(JSONObject.toJSONString(param));
-        // 重新写一个sql语句
         List<FusionResource> fusionResources = resourceRepository.selectFusionResourceUser(param);
         if (fusionResources.isEmpty()) {
             return BaseResultEntity.success(new PageDataEntity(0, param.getPageSize(), param.getPageNo(), new ArrayList()));
@@ -294,34 +284,6 @@ public class ResourceService {
         log.info(JSONObject.toJSONString(organNameMap));
         Map<Long, List<FusionResourceField>> resourceFielMap = resourceRepository.selectFusionResourceFieldByIds(resourceIds).stream().collect(Collectors.groupingBy(FusionResourceField::getResourceId));
         return BaseResultEntity.success(new PageDataEntity(count, param.getPageSize(), param.getPageNo(), fusionResources.stream().map(re -> DataResourceConvert.fusionResourcePoConvertVo(re, organNameMap.get(re.getOrganId()), resourceFielMap.get(re.getId()), param.getGlobalId())).collect(Collectors.toList())));
-    }
-
-    public BaseResultEntity saveDataResourceOrganAssignList(String globalId, List<DataResourceOrganAssignmentParam> dataResourceOrganAssigns) {
-        List<FusionResourceOrganAssignment> list = new ArrayList<>();
-        dataResourceOrganAssigns.forEach(param -> {
-            FusionResourceOrganAssignment assignment = new FusionResourceOrganAssignment();
-            assignment.setResourceId(param.getResourceFusionId());
-            assignment.setOrganId(param.getOrganId());
-            assignment.setResourceOrganId(globalId);
-            assignment.setAssignTime(new Date());
-            // 1.直接通过
-            assignment.setAssignStatus(1);
-            Map<String, Object> paramMap = new HashMap<>();
-            paramMap.put("resourceId", param.getResourceFusionId());
-            paramMap.put("organId", param.getOrganId());
-            FusionResourceOrganAssignment assignmentPo = resourceRepository.selectFusionResourceOrganAssignment(paramMap);
-
-            if (assignmentPo == null) {
-                list.add(assignment);
-            } else {
-                assignmentPo.setAssignStatus(1);    // 同意审核
-                resourceRepository.updateFusionResourceOrganAssignment(assignmentPo);
-            }
-        });
-        if (list.size() > 0) {
-            resourceRepository.saveBatchResourceOrganAssignment(list);
-        }
-        return BaseResultEntity.success();
     }
 
     /**
@@ -366,5 +328,39 @@ public class ResourceService {
         assignment.setAssignTime(new Date());
         resourceRepository.updateFusionResourceOrganAssignment(assignment);
         return BaseResultEntity.success();
+    }
+
+    public BaseResultEntity<PageDataEntity> getDataResourceAssignmentOfUser(ResourceParam param) {
+        log.info(JSONObject.toJSONString(param));
+        if (param.getResourceFusionIds() == null || param.getResourceFusionIds().size() == 0) {
+            return BaseResultEntity.success(new PageDataEntity(0, param.getPageSize(), param.getPageNo(), new ArrayList()));
+        }
+        List<FusionResource> fusionResources = resourceRepository.selectFusionResourceUserAssignment(param);
+        if (fusionResources.isEmpty()) {
+            return BaseResultEntity.success(new PageDataEntity(0, param.getPageSize(), param.getPageNo(), new ArrayList()));
+        }
+        Integer count = resourceRepository.selectFusionResourceUserAssignmentCount(param);
+        Set<Long> resourceIds = fusionResources.stream().map(FusionResource::getId).collect(Collectors.toSet());
+        Set<String> organIds = fusionResources.stream().map(FusionResource::getOrganId).collect(Collectors.toSet());
+        Map<String, String> organNameMap = fusionRepository.selectFusionOrganByGlobalIds(organIds).stream().collect(Collectors.toMap(FusionOrgan::getGlobalId, FusionOrgan::getGlobalName, (key1, key2) -> key1));
+        log.info(JSONObject.toJSONString(organNameMap));
+        Map<Long, List<FusionResourceField>> resourceFielMap = resourceRepository.selectFusionResourceFieldByIds(resourceIds).stream().collect(Collectors.groupingBy(FusionResourceField::getResourceId));
+        return BaseResultEntity.success(new PageDataEntity(count, param.getPageSize(), param.getPageNo(), fusionResources.stream().map(re -> DataResourceConvert.fusionResourcePoConvertVo(re, organNameMap.get(re.getOrganId()), resourceFielMap.get(re.getId()), param.getGlobalId())).collect(Collectors.toList())));
+    }
+
+    public BaseResultEntity<PageDataEntity> getDataResourceAssignmentOfResourceByResourceFusionId(String resourceFusionId, PageParam param) {
+        if (resourceFusionId == null) {
+            return BaseResultEntity.success(new PageDataEntity(0, param.getPageSize(), param.getPageNo(), new ArrayList()));
+        }
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("resourceFusionId", resourceFusionId);
+        paramMap.put("offset", param.getOffset());
+        paramMap.put("pageSize", param.getPageSize());
+        List<FusionResourceVisibilityAuth> fusionResourceVisibilityAuths = resourceRepository.selectFusionResourceVisibilityAuth(paramMap);
+        if (fusionResourceVisibilityAuths.isEmpty()) {
+            return BaseResultEntity.success(new PageDataEntity(0, param.getPageSize(), param.getPageNo(), new ArrayList()));
+        }
+        Integer count = resourceRepository.selectFusionResourceVisibilityAuthCount(paramMap);
+        return BaseResultEntity.success(new PageDataEntity(count, param.getPageSize(), param.getPageNo(), fusionResourceVisibilityAuths));
     }
 }

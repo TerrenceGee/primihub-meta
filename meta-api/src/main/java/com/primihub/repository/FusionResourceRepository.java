@@ -1,15 +1,14 @@
 package com.primihub.repository;
 
 
+import com.primihub.entity.resource.param.PageParam;
 import com.primihub.entity.resource.param.ResourceParam;
 import com.primihub.entity.resource.po.FusionResource;
 import com.primihub.entity.resource.po.FusionResourceField;
-import com.primihub.entity.resource.po.FusionResourceOrganAssignment;
 import com.primihub.entity.resource.po.FusionResourceVisibilityAuth;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,14 +50,19 @@ public interface FusionResourceRepository {
     List<FusionResource> selectFusionResourceUser(ResourceParam param);
 
     Integer selectFusionResourceCountUser(ResourceParam param);
-
+    /** 查询可用 */
     List<FusionResource> selectFusionResourceOrgan(ResourceParam param);
 
     Integer selectFusionResourceOrganCount(ResourceParam param);
+    /** 查询已授权 */
+    List<FusionResource> selectFusionResourceOrganAssignment(ResourceParam param);
+    Integer selectFusionResourceOrganAssignmentCount(ResourceParam param);
 
-    FusionResourceOrganAssignment selectFusionResourceOrganAssignment(Map<String, Object> paramMap);
+    List<FusionResource> selectFusionResourceUserAssignment(ResourceParam param);
 
-    void updateFusionResourceOrganAssignment(FusionResourceOrganAssignment assignmentPo);
+    Integer selectFusionResourceUserAssignmentCount(ResourceParam param);
 
-    void saveBatchResourceOrganAssignment(@Param("collection")List<FusionResourceOrganAssignment> list);
+    List<FusionResourceVisibilityAuth> selectFusionResourceVisibilityAuth(Map<String, Object> paramMap);
+
+    Integer selectFusionResourceVisibilityAuthCount(Map<String, Object> paramMap);
 }

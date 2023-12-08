@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.primihub.entity.DataSet;
 import com.primihub.entity.base.BaseResultEntity;
 import com.primihub.entity.base.BaseResultEnum;
+import com.primihub.entity.base.PageDataEntity;
 import com.primihub.entity.copy.dto.CopyResourceDto;
 import com.primihub.entity.resource.param.DataResourceOrganAssignmentParam;
 import com.primihub.entity.resource.param.PageParam;
@@ -91,18 +92,6 @@ public class FusionResourceController {
     }
 
     /**
-     * 查询机构已授权的资源
-     * @return
-     */
-    @GetMapping("getDataResourceOrganAssignment")
-    BaseResultEntity getDataResourceOrganAssignment(ResourceAssignmentParam param) {
-        if (param.getOrganGlobalId()==null||param.getOrganGlobalId().length()==0) {
-            return BaseResultEntity.failure(BaseResultEnum.LACK_OF_PARAM,"organGlobalId");
-        }
-        return resourceService.getDataResourceOrganAssignment(param);
-    }
-
-    /**
      * 查询机构可申请的资源
      * @return
      */
@@ -114,20 +103,10 @@ public class FusionResourceController {
         return resourceService.getDataResourceToApply(param);
     }
 
-    @RequestMapping("/fusionResource/getResourceListUser")
-    BaseResultEntity getResourceListUser(@RequestBody ResourceParam resourceParam) {
-        return resourceService.getResourceListUser(resourceParam);
-    }
 
-    @RequestMapping("/fusionResource/getResourceListOrgan")
+    @RequestMapping("getResourceListOrgan")
     BaseResultEntity getResourceListOrgan(@RequestBody ResourceParam resourceParam) {
         return resourceService.getResourceListOrgan(resourceParam);
-    }
-
-    @PostMapping("/fusionResource/saveResourceOrganAssignList")
-    BaseResultEntity saveDataResourceOrganAssignList(@RequestParam("globalId") String globalId, @RequestBody List<DataResourceOrganAssignmentParam> dataResourceOrganAssigns) {
-        // 可能来自于拥有者的授权
-        return resourceService.saveDataResourceOrganAssignList(globalId, dataResourceOrganAssigns);
     }
 
     @PostMapping("/fusionResource/saveResourceOrganAssignApply")
@@ -145,4 +124,21 @@ public class FusionResourceController {
         return resourceService.saveResourceOrganAssignAudit(globalId, param);
     }
 
+    /** ----------------------------------------------------------------- */
+
+    @GetMapping("getDataResourceAssignmentOfOrgan")
+    BaseResultEntity<PageDataEntity> getDataResourceAssignmentOfOrgan(ResourceParam param) {
+        return resourceService.getDataResourceAssignmentOfOrgan(param);
+    }
+
+    @RequestMapping("getResourceListUser")
+    BaseResultEntity getResourceListUser(@RequestBody ResourceParam resourceParam) {
+        return resourceService.getResourceListUser(resourceParam);
+    }
+
+    /** 查询资源对机构的授权 */
+    @GetMapping("getDataResourceOrganAssignmentByResourceId")
+    BaseResultEntity<PageDataEntity> getDataResourceOrganAssignmentByResourceId(String resourceFusionId, PageParam pageParam) {
+        return resourceService.getDataResourceAssignmentOfResourceByResourceFusionId(resourceFusionId, pageParam);
+    }
 }
