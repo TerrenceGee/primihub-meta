@@ -95,33 +95,18 @@ public class FusionResourceController {
      * 查询机构可申请的资源
      * @return
      */
-    @GetMapping("getDataResourceToApply")
+    /*@GetMapping("getDataResourceToApply")
     BaseResultEntity getDataResourceToApply(ResourceAssignmentParam param) {
         if (param.getOrganGlobalId()==null||param.getOrganGlobalId().length()==0) {
             return BaseResultEntity.failure(BaseResultEnum.LACK_OF_PARAM,"organGlobalId");
         }
         return resourceService.getDataResourceToApply(param);
-    }
+    }*/
 
 
     @RequestMapping("getResourceListOrgan")
     BaseResultEntity getResourceListOrgan(@RequestBody ResourceParam resourceParam) {
         return resourceService.getResourceListOrgan(resourceParam);
-    }
-
-    @PostMapping("/fusionResource/saveResourceOrganAssignApply")
-    BaseResultEntity saveResourceOrganAssignApply(@RequestParam("globalId") String globalId, @RequestBody DataResourceOrganAssignmentParam param) {
-        // 资源申请
-        return resourceService.saveResourceOrganAssignApply(globalId, param);
-    }
-
-    @PostMapping("/fusionResource/saveResourceOrganAssignAudit")
-    BaseResultEntity saveResourceOrganAssignAudit(@RequestParam("globalId") String globalId, @RequestBody DataResourceOrganAssignmentParam param) {
-        if (param.getAuditStatus() != 1 && param.getAuditStatus() != 2) {
-            return BaseResultEntity.failure(BaseResultEnum.PARAM_INVALIDATION, "auditStatus");
-        }
-        // 资源审核
-        return resourceService.saveResourceOrganAssignAudit(globalId, param);
     }
 
     /** ----------------------------------------------------------------- */

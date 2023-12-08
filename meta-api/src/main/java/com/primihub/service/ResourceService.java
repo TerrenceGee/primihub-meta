@@ -12,7 +12,6 @@ import com.primihub.entity.fusion.FusionOrgan;
 import com.primihub.entity.resource.enumeration.AuthTypeEnum;
 import com.primihub.entity.resource.param.DataResourceOrganAssignmentParam;
 import com.primihub.entity.resource.param.PageParam;
-import com.primihub.entity.resource.param.ResourceAssignmentParam;
 import com.primihub.entity.resource.param.ResourceParam;
 import com.primihub.entity.resource.po.FusionResource;
 import com.primihub.entity.resource.po.FusionResourceField;
@@ -228,7 +227,7 @@ public class ResourceService {
         return BaseResultEntity.success(new PageDataEntity(count, param.getPageSize(), param.getPageNo(), fusionResources.stream().map(re -> DataResourceConvert.fusionResourcePoConvertVo(re, organNameMap.get(re.getOrganId()), resourceFielMap.get(re.getId()), param.getGlobalId())).collect(Collectors.toList())));
     }
 
-    public BaseResultEntity getDataResourceToApply(ResourceAssignmentParam param) {
+    /*public BaseResultEntity getDataResourceToApply(ResourceAssignmentParam param) {
         log.info(JSONObject.toJSONString(param));
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("organGlobalId", param.getOrganGlobalId());
@@ -254,7 +253,7 @@ public class ResourceService {
                 param.getPageNo(),
                 fusionResourceList.stream().map(re -> DataResourceConvert.fusionResourcePoConvertVo(re, organNameMap.get(re.getOrganId()), resourceFielMap.get(re.getId()), param.getOrganGlobalId())).collect(Collectors.toList())
         ));
-    }
+    }*/
 
     public BaseResultEntity getResourceListUser(ResourceParam param) {
         log.info(JSONObject.toJSONString(param));
@@ -284,50 +283,6 @@ public class ResourceService {
         log.info(JSONObject.toJSONString(organNameMap));
         Map<Long, List<FusionResourceField>> resourceFielMap = resourceRepository.selectFusionResourceFieldByIds(resourceIds).stream().collect(Collectors.groupingBy(FusionResourceField::getResourceId));
         return BaseResultEntity.success(new PageDataEntity(count, param.getPageSize(), param.getPageNo(), fusionResources.stream().map(re -> DataResourceConvert.fusionResourcePoConvertVo(re, organNameMap.get(re.getOrganId()), resourceFielMap.get(re.getId()), param.getGlobalId())).collect(Collectors.toList())));
-    }
-
-    /**
-     * 资源申请
-     * @param globalId  申请发起的机构id
-     * @param param 申请详情
-     * @return
-     */
-    public BaseResultEntity saveResourceOrganAssignApply(String globalId, DataResourceOrganAssignmentParam param) {
-        // 查询申请是否已经存在
-        HashMap<String, Object> paramMap = new HashMap<String, Object>() {
-            {
-                put("resourceId", param.getResourceFusionId());
-                put("organId", param.getOrganId());
-            }
-        };
-        FusionResourceOrganAssignment assignment = resourceRepository.selectFusionResourceOrganAssignment(paramMap);
-        if (assignment!=null){
-           return BaseResultEntity.success();
-        }
-        FusionResourceOrganAssignment assignmentPo = new FusionResourceOrganAssignment(param);
-        assignmentPo.setApplyTime(new Date());
-        // 申请中
-        assignmentPo.setAssignStatus(0);
-        resourceRepository.saveBatchResourceOrganAssignment(Collections.singletonList(assignmentPo));
-        return BaseResultEntity.success();
-    }
-
-    public BaseResultEntity saveResourceOrganAssignAudit(String globalId, DataResourceOrganAssignmentParam param) {
-        // 查询申请是否已经存在
-        HashMap<String, Object> paramMap = new HashMap<String, Object>() {
-            {
-                put("resourceId", param.getResourceFusionId());
-                put("organId", param.getOrganId());
-            }
-        };
-        FusionResourceOrganAssignment assignment = resourceRepository.selectFusionResourceOrganAssignment(paramMap);
-        if (assignment==null){
-            return BaseResultEntity.failure(BaseResultEnum.FAILURE, "没有找到该申请");
-        }
-        assignment.setAssignStatus(param.getAuditStatus());
-        assignment.setAssignTime(new Date());
-        resourceRepository.updateFusionResourceOrganAssignment(assignment);
-        return BaseResultEntity.success();
     }
 
     public BaseResultEntity<PageDataEntity> getDataResourceAssignmentOfUser(ResourceParam param) {

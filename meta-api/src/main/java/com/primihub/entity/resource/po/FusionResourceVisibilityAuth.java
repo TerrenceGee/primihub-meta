@@ -14,6 +14,9 @@ public class FusionResourceVisibilityAuth {
     private Integer isDel;
     private Date cTime;
     private Date uTime;
+    private Integer auditStatus;
+    private Date applyTime;
+    private Date assignTime;
 
     public FusionResourceVisibilityAuth(String resourceId, String organGlobalId) {
         this.resourceId = resourceId;
