@@ -11,6 +11,7 @@ import com.primihub.entity.copy.dto.CopyResourceFieldDto;
 import com.primihub.entity.fusion.FusionOrgan;
 import com.primihub.entity.resource.enumeration.AuthTypeEnum;
 import com.primihub.entity.resource.param.DataResourceOrganAssignmentParam;
+import com.primihub.entity.resource.param.DataResourceVisibilityAuthReq;
 import com.primihub.entity.resource.param.PageParam;
 import com.primihub.entity.resource.param.ResourceParam;
 import com.primihub.entity.resource.po.FusionResource;
@@ -111,10 +112,10 @@ public class ResourceService {
                 resourceRepository.saveBatchResourceField(resourceFields);
             }
             // todo 可见性同步
-            if (fusionResource.getResourceAuthType().equals(AuthTypeEnum.VISIBILITY.getAuthType())) {
-                List<String> authStringList = copyResourceDto.getAuthOrganList();
+            if (fusionResource.getResourceAuthType().equals(AuthTypeEnum.VISIBILITY.getAuthType()) || fusionResource.getResourceAuthType().equals(AuthTypeEnum.PRIVATE.getAuthType())) {
+                List<DataResourceVisibilityAuthReq> authStringList = copyResourceDto.getAuthOrganList();
                 if (authStringList != null) {
-                    for (String authString : authStringList) {
+                    for (DataResourceVisibilityAuthReq authString : authStringList) {
                         authOrganList.add(new FusionResourceVisibilityAuth(copyResourceDto.getResourceId(), authString));
                     }
                 }
@@ -170,7 +171,9 @@ public class ResourceService {
         Map<String, DataSet> dataSetMap = dataSetService.getByIds(resourceIdArray).stream().collect(Collectors.toMap(DataSet::getId, Function.identity()));
         Set<Long> ids = fusionResources.stream().map(FusionResource::getId).collect(Collectors.toSet());
         Map<Long, List<CopyResourceFieldDto>> fieldMap = resourceRepository.selectFusionResourceFieldByIds(ids).stream().map(DataResourceConvert::fusionResourceFieldConvertCopyResourceFieldDto).collect(Collectors.groupingBy(CopyResourceFieldDto::getResourceId));
-        return BaseResultEntity.success(fusionResources.stream().map(d -> DataResourceConvert.FusionResourceConvertCopyResourceDto(d, fieldMap.get(d.getId()), dataSetMap.get(d.getResourceId()))).collect(Collectors.toList()));
+        List<FusionResourceVisibilityAuth> fusionResourceVisibilityAuths = resourceRepository.selectFusionResourceVisibilityAuthByResourceIds(resourceIdArray);
+        Map<String, List<FusionResourceVisibilityAuth>> authMap = fusionResourceVisibilityAuths.stream().collect(Collectors.groupingBy(FusionResourceVisibilityAuth::getResourceId));
+        return BaseResultEntity.success(fusionResources.stream().map(d -> DataResourceConvert.FusionResourceConvertCopyResourceDto(d, fieldMap.get(d.getId()), dataSetMap.get(d.getResourceId()), authMap.get(d.getResourceId()).stream().map(DataResourceConvert::FusionResourceConvertFusionAuthReq).collect(Collectors.toList()))).collect(Collectors.toList()));
     }
 
     public BaseResultEntity getTestDataSet(String id) {
@@ -317,5 +320,20 @@ public class ResourceService {
         }
         Integer count = resourceRepository.selectFusionResourceVisibilityAuthCount(paramMap);
         return BaseResultEntity.success(new PageDataEntity(count, param.getPageSize(), param.getPageNo(), fusionResourceVisibilityAuths));
+    }
+
+    public BaseResultEntity getCoopResourceListOrgan(ResourceParam param) {
+        log.info(JSONObject.toJSONString(param));
+        List<FusionResource> fusionResources = resourceRepository.selectCoopFusionResourceOrgan(param);
+        if (fusionResources.isEmpty()) {
+            return BaseResultEntity.success(new PageDataEntity(0, param.getPageSize(), param.getPageNo(), new ArrayList()));
+        }
+        Integer count = resourceRepository.selectCoopFusionResourceOrganCount(param);
+        Set<Long> resourceIds = fusionResources.stream().map(FusionResource::getId).collect(Collectors.toSet());
+        Set<String> organIds = fusionResources.stream().map(FusionResource::getOrganId).collect(Collectors.toSet());
+        Map<String, String> organNameMap = fusionRepository.selectFusionOrganByGlobalIds(organIds).stream().collect(Collectors.toMap(FusionOrgan::getGlobalId, FusionOrgan::getGlobalName, (key1, key2) -> key1));
+        log.info(JSONObject.toJSONString(organNameMap));
+        Map<Long, List<FusionResourceField>> resourceFielMap = resourceRepository.selectFusionResourceFieldByIds(resourceIds).stream().collect(Collectors.groupingBy(FusionResourceField::getResourceId));
+        return BaseResultEntity.success(new PageDataEntity(count, param.getPageSize(), param.getPageNo(), fusionResources.stream().map(re -> DataResourceConvert.fusionResourcePoConvertVo(re, organNameMap.get(re.getOrganId()), resourceFielMap.get(re.getId()), param.getGlobalId())).collect(Collectors.toList())));
     }
 }

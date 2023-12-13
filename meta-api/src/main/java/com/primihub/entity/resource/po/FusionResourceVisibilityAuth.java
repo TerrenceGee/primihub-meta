@@ -1,5 +1,6 @@
 package com.primihub.entity.resource.po;
 
+import com.primihub.entity.resource.param.DataResourceVisibilityAuthReq;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,9 +19,12 @@ public class FusionResourceVisibilityAuth {
     private Date applyTime;
     private Date assignTime;
 
-    public FusionResourceVisibilityAuth(String resourceId, String organGlobalId) {
+    public FusionResourceVisibilityAuth(String resourceId,DataResourceVisibilityAuthReq authReq) {
         this.resourceId = resourceId;
-        this.organGlobalId = organGlobalId;
+        this.organGlobalId = authReq.getOrganGlobalId();
         this.isDel = 0;
+        this.auditStatus = authReq.getAuditStatus();
+        this.applyTime = authReq.getApplyTime();
+        this.assignTime = authReq.getAssignTime();
     }
 }

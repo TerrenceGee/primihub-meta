@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 
 @Data
@@ -83,8 +84,8 @@ public class FusionResource {
      */
     private String organId;
 
-    private String authOrgans;
-
+//    private String authOrgans;
+    private List<FusionResourceVisibilityAuth> authOrganList;
     /**
      * 资源hash文件编码
      */
@@ -111,6 +112,11 @@ public class FusionResource {
      * 更新时间
      */
     private Date uTime;
+
+    /**
+     * 审核状态
+     */
+    private Integer auditStatus;
 
 
 }

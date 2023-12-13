@@ -1,8 +1,8 @@
 package com.primihub.entity.copy.dto;
 
 import com.primihub.entity.DataSet;
+import com.primihub.entity.resource.param.DataResourceVisibilityAuthReq;
 import lombok.Data;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -76,7 +76,7 @@ public class CopyResourceDto {
     /**
      * 可见机构id
      */
-    private List<String> authOrganList;
+    private List<DataResourceVisibilityAuthReq> authOrganList;
 
     /**
      * 资源字段列表

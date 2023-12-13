@@ -126,4 +126,11 @@ public class FusionResourceController {
     BaseResultEntity<PageDataEntity> getDataResourceOrganAssignmentByResourceId(String resourceFusionId, PageParam pageParam) {
         return resourceService.getDataResourceAssignmentOfResourceByResourceFusionId(resourceFusionId, pageParam);
     }
+
+
+    /** 协作方资源 */
+    @RequestMapping("getCoopResourceListOrgan")
+    BaseResultEntity getCoopResourceListOrgan(@RequestBody ResourceParam resourceParam) {
+        return resourceService.getCoopResourceListOrgan(resourceParam);
+    }
 }

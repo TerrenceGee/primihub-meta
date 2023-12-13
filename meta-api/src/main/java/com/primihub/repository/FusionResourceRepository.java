@@ -9,6 +9,7 @@ import com.primihub.entity.resource.po.FusionResourceVisibilityAuth;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,4 +66,9 @@ public interface FusionResourceRepository {
     List<FusionResourceVisibilityAuth> selectFusionResourceVisibilityAuth(Map<String, Object> paramMap);
 
     Integer selectFusionResourceVisibilityAuthCount(Map<String, Object> paramMap);
+    List<FusionResourceVisibilityAuth> selectFusionResourceVisibilityAuthByResourceIds(@Param("resourceIds") Set<String> resourceIdArray);
+
+    List<FusionResource> selectCoopFusionResourceOrgan(ResourceParam param);
+
+    Integer selectCoopFusionResourceOrganCount(ResourceParam param);
 }

@@ -4,8 +4,10 @@ import com.primihub.entity.DataSet;
 import com.primihub.entity.copy.dto.CopyResourceDto;
 import com.primihub.entity.copy.dto.CopyResourceFieldDto;
 import com.primihub.entity.resource.enumeration.AuthTypeEnum;
+import com.primihub.entity.resource.param.DataResourceVisibilityAuthReq;
 import com.primihub.entity.resource.po.FusionResource;
 import com.primihub.entity.resource.po.FusionResourceField;
+import com.primihub.entity.resource.po.FusionResourceVisibilityAuth;
 import com.primihub.entity.resource.vo.FusionResourceVo;
 import org.springframework.util.StringUtils;
 
@@ -41,7 +43,7 @@ public class DataResourceConvert {
         return fusionResource;
 
     }
-    public static CopyResourceDto FusionResourceConvertCopyResourceDto(FusionResource po,List<CopyResourceFieldDto> fieldDtoList,DataSet dataSet){
+    public static CopyResourceDto FusionResourceConvertCopyResourceDto(FusionResource po, List<CopyResourceFieldDto> fieldDtoList, DataSet dataSet, List<DataResourceVisibilityAuthReq> visibilityAuths){
         CopyResourceDto copyResourceDto = new CopyResourceDto();
         copyResourceDto.setResourceId(po.getResourceId());
         copyResourceDto.setResourceName(po.getResourceName());
@@ -56,13 +58,14 @@ public class DataResourceConvert {
         copyResourceDto.setResourceYRatio(po.getResourceYRatio());
         copyResourceDto.setResourceTag(po.getResourceTag());
         copyResourceDto.setOrganId(po.getOrganId());
-        copyResourceDto.setAuthOrganList(StringUtils.isEmpty(po.getAuthOrgans())?null: Arrays.asList(po.getAuthOrgans().split(",")));
+        copyResourceDto.setAuthOrganList(visibilityAuths.isEmpty()?null: visibilityAuths);
         copyResourceDto.setFieldList(fieldDtoList);
         copyResourceDto.setIsDel(po.getIsDel());
         copyResourceDto.setResourceHashCode(po.getResourceHashCode());
         copyResourceDto.setResourceState(po.getResourceState());
         copyResourceDto.setUserName(po.getUserName());
-        dataSet.setAccessInfo("");
+        if (dataSet != null)
+            dataSet.setAccessInfo("");
         copyResourceDto.setDataSet(dataSet);
         return copyResourceDto;
     }
@@ -99,8 +102,9 @@ public class DataResourceConvert {
                     fusionResourceVo.setAvailable(0);
                 }
                 if (fusionResource.getResourceAuthType().equals(AuthTypeEnum.VISIBILITY.getAuthType())){
-                    if (!StringUtils.isEmpty(fusionResource.getAuthOrgans()) && !StringUtils.isEmpty(globalId)){
-                        Set<String> authOrgansSet = Arrays.stream(fusionResource.getAuthOrgans().split(",")).collect(Collectors.toSet());
+                    List<FusionResourceVisibilityAuth> authOrganList = fusionResource.getAuthOrganList();
+                    if (!authOrganList.isEmpty() && !StringUtils.isEmpty(globalId)) {
+                        Set<String> authOrgansSet = authOrganList.stream().map(FusionResourceVisibilityAuth::getOrganGlobalId).collect(Collectors.toSet());
                         authOrgansSet.add(fusionResource.getOrganId());
                         if (authOrgansSet.contains(globalId)) {
                             fusionResourceVo.setAvailable(0);
@@ -116,6 +120,8 @@ public class DataResourceConvert {
         fusionResourceVo.setResourceState(fusionResource.getResourceState());
         fusionResourceVo.setResourceHashCode(fusionResource.getResourceHashCode());
         fusionResourceVo.setUserName(fusionResource.getUserName());
+
+        fusionResourceVo.setAuditStatus(fusionResource.getAuditStatus());
         return fusionResourceVo;
     }
 
@@ -139,5 +145,16 @@ public class DataResourceConvert {
         copyResourceFieldDto.setResourceId(po.getResourceId());
         return copyResourceFieldDto;
 
+    }
+
+    public static DataResourceVisibilityAuthReq FusionResourceConvertFusionAuthReq(FusionResourceVisibilityAuth fusionAuth) {
+        DataResourceVisibilityAuthReq auth = new DataResourceVisibilityAuthReq();
+        auth.setApplyTime(fusionAuth.getApplyTime());
+        auth.setResourceFusionId(fusionAuth.getResourceId());
+        auth.setOrganGlobalId(fusionAuth.getOrganGlobalId());
+        auth.setAuditStatus(fusionAuth.getAuditStatus());
+        auth.setApplyTime(fusionAuth.getApplyTime());
+        auth.setAssignTime(fusionAuth.getAssignTime());
+        return auth;
     }
 }
