@@ -266,7 +266,6 @@
         and r.resource_type != 3
         and (
         r.resource_auth_type=1
-        or r.organ_id = #{globalId}
         <if test="resourceFusionIds!=null">
             or r.resource_id in
             <foreach collection="resourceFusionIds" index="index" item="item" separator="," open="(" close=")">
