@@ -266,7 +266,7 @@
         and r.resource_type != 3
         and (
         r.resource_auth_type=1
-        <if test="resourceFusionIds!=null">
+        <if test="resourceFusionIds!=null and resourceFusionIds.size > 0">
             or r.resource_id in
             <foreach collection="resourceFusionIds" index="index" item="item" separator="," open="(" close=")">
                 #{item}
@@ -537,4 +537,105 @@
         <result column="u_time" property="uTime" />
         <result column="audit_status" property="auditStatus" />
     </resultMap>
+
+    <select id="selectFusionResourceToApplyOfOrgan" parameterType="com.primihub.entity.resource.param.ResourceParam" resultMap="FusionResourceBaseResultMap">
+        select
+        distinct r.id,r.resource_id resourceId,r.resource_name resourceName,r.resource_desc resourceDesc,r.resource_type resourceType,
+        r.resource_auth_type resourceAuthType,r.resource_rows_count resourceRowsCount,r.resource_column_count resourceColumnCount,
+        r.resource_column_name_list resourceColumnNameList,r.resource_contains_y resourceContainsY,r.resource_y_rows_count resourceYRowsCount,
+        r.resource_state resourceState,r.resource_hash_code resourceHashCode,
+        r.resource_y_ratio resourceYRatio,r.resource_tag resourceTag,r.organ_id organId,r.user_name userName,r.is_del isDel,
+        r.c_time cTime,r.u_time uTime,frva.audit_status auditStatus
+        from fusion_resource r left join fusion_resource_visibility_auth frva on r.resource_id = frva.resource_id and frva.organ_global_id = #{globalId}
+        <include refid="fusionResourceCondition7"></include>
+        order by r.id desc
+        limit #{offset},#{pageSize}
+    </select>
+    <select id="selectFusionResourceToApplyOfOrganCount" parameterType="com.primihub.entity.resource.param.ResourceParam" resultType="java.lang.Integer">
+        select
+        count(distinct r.id)
+        from fusion_resource r left join fusion_resource_visibility_auth frva on r.resource_id = frva.resource_id and frva.organ_global_id = #{globalId}
+        <include refid="fusionResourceCondition7"></include>
+    </select>
+    <sql id="fusionResourceCondition7">
+        where
+        r.resource_state = 0
+        and r.resource_type != 3
+        and r.resource_auth_type = 3
+        and r.is_del=0
+        <if test="organId!=null and organId!=''">and r.organ_id = #{organId}</if>
+        <if test="globalId!=null and globalId!='' and organId!=globalId">and r.organ_id != #{globalId}</if>
+        <if test="organIds!=null">
+            and r.organ_id in
+            <foreach collection="organIds" index="index" item="item" separator="," open="(" close=")" >
+                #{item}
+            </foreach>
+        </if>
+        <if test="resourceId!=null and resourceId!=''">and r.resource_id = #{resourceId}</if>
+        <if test="resourceName!=null and resourceName!=''">and r.resource_name like CONCAT('%',#{resourceName,jdbcType=VARCHAR},'%')</if>
+        <if test="resourceType!=null and resourceType!=0">and r.resource_type = #{resourceType}</if>
+        <if test="tagName!=null and tagName!=''">and FIND_IN_SET(#{tagName}, r.resource_tag)</if>
+        <choose>
+            <when test="fileContainsY!=null and fileContainsY==1">
+                and r.resource_contains_y = 1
+            </when>
+            <when test="fileContainsY!=null and fileContainsY==0">
+                and r.resource_contains_y is null
+            </when>
+        </choose>
+    </sql>
+
+    <select id="selectFusionResourceToApplyOfUser" parameterType="com.primihub.entity.resource.param.ResourceParam" resultMap="FusionResourceBaseResultMap">
+        select
+        distinct r.id,r.resource_id resourceId,r.resource_name resourceName,r.resource_desc resourceDesc,r.resource_type resourceType,
+        r.resource_auth_type resourceAuthType,r.resource_rows_count resourceRowsCount,r.resource_column_count resourceColumnCount,
+        r.resource_column_name_list resourceColumnNameList,r.resource_contains_y resourceContainsY,r.resource_y_rows_count resourceYRowsCount,
+        r.resource_state resourceState,r.resource_hash_code resourceHashCode,
+        r.resource_y_ratio resourceYRatio,r.resource_tag resourceTag,r.organ_id organId,r.user_name userName,r.is_del isDel,
+        r.c_time cTime,r.u_time uTime
+        from fusion_resource r
+        <include refid="fusionResourceCondition8"></include>
+        order by r.id desc
+        limit #{offset},#{pageSize}
+    </select>
+    <select id="selectFusionResourceToApplyOfUserCount" parameterType="com.primihub.entity.resource.param.ResourceParam" resultType="java.lang.Integer">
+        select
+        count(distinct r.id)
+        from fusion_resource r
+        <include refid="fusionResourceCondition8"></include>
+    </select>
+    <sql id="fusionResourceCondition8">
+        where
+        r.resource_state = 0
+        and r.resource_type != 3
+        and r.resource_auth_type = 3
+        <if test="resourceFusionIds!=null and resourceFusionIds.size>0 ">
+            and r.resource_id not in
+            <foreach collection="resourceFusionIds" index="index" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        and r.is_del=0
+        <if test="organId!=null and organId!=''">and r.organ_id = #{organId}</if>
+        <if test="globalId!=null and globalId!='' and organId!=globalId">and r.organ_id != #{globalId}</if>
+        <if test="organIds!=null">
+            and r.organ_id in
+            <foreach collection="organIds" index="index" item="item" separator="," open="(" close=")" >
+                #{item}
+            </foreach>
+        </if>
+        <if test="resourceId!=null and resourceId!=''">and r.resource_id = #{resourceId}</if>
+        <if test="resourceName!=null and resourceName!=''">and r.resource_name like CONCAT('%',#{resourceName,jdbcType=VARCHAR},'%')</if>
+        <if test="resourceType!=null and resourceType!=0">and r.resource_type = #{resourceType}</if>
+        <if test="tagName!=null and tagName!=''">and FIND_IN_SET(#{tagName}, r.resource_tag)</if>
+        <choose>
+            <when test="fileContainsY!=null and fileContainsY==1">
+                and r.resource_contains_y = 1
+            </when>
+            <when test="fileContainsY!=null and fileContainsY==0">
+                and r.resource_contains_y is null
+            </when>
+        </choose>
+    </sql>
 </mapper>

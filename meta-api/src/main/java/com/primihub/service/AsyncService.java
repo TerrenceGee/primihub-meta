@@ -16,6 +16,7 @@ public class AsyncService {
     @Autowired
     private NoticeService noticeService;
 
+    // 调用platform
     @Async
     public void noticeResource(DataSet dataSet,DataSet newDataSet){
 //        int d = 0;

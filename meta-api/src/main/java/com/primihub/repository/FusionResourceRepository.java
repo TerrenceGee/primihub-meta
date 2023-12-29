@@ -71,4 +71,12 @@ public interface FusionResourceRepository {
     List<FusionResource> selectCoopFusionResourceOrgan(ResourceParam param);
 
     Integer selectCoopFusionResourceOrganCount(ResourceParam param);
+
+    List<FusionResource> selectFusionResourceToApplyOfOrgan(ResourceParam param);
+
+    Integer selectFusionResourceToApplyOfOrganCount(ResourceParam param);
+
+    List<FusionResource> selectFusionResourceToApplyOfUser(ResourceParam param);
+
+    Integer selectFusionResourceToApplyOfUserCount(ResourceParam param);
 }

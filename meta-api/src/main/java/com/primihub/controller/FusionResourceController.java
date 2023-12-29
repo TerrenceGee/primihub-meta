@@ -27,6 +27,11 @@ public class FusionResourceController {
     @Autowired
     private ResourceService resourceService;
 
+    /**
+     * 协作方资源
+     * @param resourceParam
+     * @return
+     */
     @RequestMapping("getResourceList")
     public BaseResultEntity getResourceList(@RequestBody ResourceParam resourceParam){
         return resourceService.getResourceList(resourceParam);
@@ -95,42 +100,60 @@ public class FusionResourceController {
      * 查询机构可申请的资源
      * @return
      */
-    /*@GetMapping("getDataResourceToApply")
-    BaseResultEntity getDataResourceToApply(ResourceAssignmentParam param) {
-        if (param.getOrganGlobalId()==null||param.getOrganGlobalId().length()==0) {
-            return BaseResultEntity.failure(BaseResultEnum.LACK_OF_PARAM,"organGlobalId");
-        }
-        return resourceService.getDataResourceToApply(param);
-    }*/
-
-
-    @RequestMapping("getResourceListOrgan")
-    BaseResultEntity getResourceListOrgan(@RequestBody ResourceParam resourceParam) {
-        return resourceService.getResourceListOrgan(resourceParam);
+    @PostMapping("getDataResourceListToApplyOfOrgan")
+    BaseResultEntity getDataResourceListToApplyOfOrgan(@RequestBody ResourceParam param) {
+        return resourceService.getDataResourceListToApplyOfOrgan(param);
     }
+
+    /**
+     * 查询用户可申请的资源
+     * @return
+     */
+    @PostMapping("getDataResourceListToApplyOfUser")
+    BaseResultEntity getDataResourceListToApplyOfUser(@RequestBody ResourceParam param) {
+        return resourceService.getDataResourceListToApplyOfUser(param);
+    }
+
+
+//    @RequestMapping("getResourceListOrgan")
+//    BaseResultEntity getResourceListOrgan(@RequestBody ResourceParam resourceParam) {
+//        return resourceService.getResourceListOrgan(resourceParam);
+//    }
 
     /** ----------------------------------------------------------------- */
 
-    @GetMapping("getDataResourceAssignmentOfOrgan")
-    BaseResultEntity<PageDataEntity> getDataResourceAssignmentOfOrgan(ResourceParam param) {
-        return resourceService.getDataResourceAssignmentOfOrgan(param);
-    }
+//    @GetMapping("getDataResourceAssignmentOfOrgan")
+//    BaseResultEntity<PageDataEntity> getDataResourceAssignmentOfOrgan(ResourceParam param) {
+//        return resourceService.getDataResourceAssignmentOfOrgan(param);
+//    }
 
-    @RequestMapping("getResourceListUser")
-    BaseResultEntity getResourceListUser(@RequestBody ResourceParam resourceParam) {
-        return resourceService.getResourceListUser(resourceParam);
-    }
+//    @RequestMapping("getResourceListUser")
+//    BaseResultEntity getResourceListUser(@RequestBody ResourceParam resourceParam) {
+//        return resourceService.getResourceListUser(resourceParam);
+//    }
 
-    /** 查询资源对机构的授权 */
-    @GetMapping("getDataResourceOrganAssignmentByResourceId")
-    BaseResultEntity<PageDataEntity> getDataResourceOrganAssignmentByResourceId(String resourceFusionId, PageParam pageParam) {
-        return resourceService.getDataResourceAssignmentOfResourceByResourceFusionId(resourceFusionId, pageParam);
-    }
+//    /** 查询资源对机构的授权 */
+//    @GetMapping("getDataResourceOrganAssignmentByResourceId")
+//    BaseResultEntity<PageDataEntity> getDataResourceOrganAssignmentByResourceId(String resourceFusionId, PageParam pageParam) {
+//        return resourceService.getDataResourceAssignmentOfResourceByResourceFusionId(resourceFusionId, pageParam);
+//    }
 
 
     /** 协作方资源 */
-    @RequestMapping("getCoopResourceListOrgan")
+    @PostMapping("getCoopResourceListOrgan")
     BaseResultEntity getCoopResourceListOrgan(@RequestBody ResourceParam resourceParam) {
         return resourceService.getCoopResourceListOrgan(resourceParam);
+    }
+
+    /** 机构已获得授权资源 */
+    @PostMapping("getResourceListOfOrgan")
+    BaseResultEntity getResourceListOfOrgan(@RequestBody ResourceParam resourceParam) {
+        return resourceService.getResourceListOfOrgan(resourceParam);
+    }
+
+    /** 用户已获得授权资源 */
+    @PostMapping("getResourceListOfUser")
+    BaseResultEntity getResourceListOfUser(@RequestBody ResourceParam resourceParam) {
+        return resourceService.getResourceListOfUser(resourceParam);
     }
 }
